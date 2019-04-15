@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="../stylesheets/generator.css" type="text/css">
+
+
+    <title>Code Generator</title>
+</head>
+<body>
+<div class="page-content">
+    <div class="container">
+        <div class="header">
+            <h1>Code Generator</h1>
+        </div>
+
+        <div class="content">
+            <div class="section">
+                <label>1. Paste a JSON file into the code window or upload a JSON file using the browse button.</label><br>
+                <label>2. Enter an element you wish to retrieve.</label><br>
+                <label>3. Select a programming language and code will be generated.</label><br><br>
+            </div>
+
+            <div class="upload-file">
+                <label>Upload JSON:  </label>
+                <input type="file" id="selectFiles">
+                <input type="button" id="upload" value="upload">
+            </div><br>
+
+            <div class="read-api">
+                <label>Enter API URL: </label>
+                <input type="text" name ="url" id="url">
+                <input type="button" id="load-url" value="Load" >
+            </div><br>
+
+            <div class="desired-element">
+                <label>Enter desired element: </label>
+                <input type="text" name="element" id="element">
+            </div><br>
+
+            <div class="language">
+                <label>Select a programming language</label>
+                <select id="language">
+                    <option value="Java">Java</option>
+                    <option value="C++">C++</option>
+                </select>
+            </div><br>
+
+            <input type="button" id="generate-code" value="Generate Code" >
+
+            <div class="tool-container">
+                <div class="section panels tool tool-primary" data-accepts="text" data-returns data-tool-url="generate">
+                    <div class="body">
+                        <div class="panels-wrapper">
+                            <div class="panel json">
+                                <label>JSON</label>
+                                <div class="panel-textbox">
+                                    <div class="panel-wrapper">
+                                        <div class="data-wrapper">
+
+                                            <textarea data-autosave class="data" id="json-contents"></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="panel code">
+                                <label>Code</label>
+                                <div class="panel-textbox">
+                                    <div class="panel-wrapper">
+
+
+                                        <div class="data-wrapper">
+                                            <textarea readonly class="data"></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

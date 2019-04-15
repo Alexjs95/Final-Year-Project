@@ -1,0 +1,84 @@
+.content {
+    position: relative;
+    margin-left: 60px;
+    margin-right: 60px;
+}
+
+.container {
+    width: 70%;
+    margin: 0 auto;
+}
+
+.wrapper {
+    width: 100%;
+}
+
+
+.panel {
+    width: 48%;
+    top: 0;
+    font-size: 0;
+    transition: width 0.2s ease;
+    position: relative;
+    display: inline-block;
+    font-family: monospace;
+}
+
+
+.panel > label {
+    letter-spacing: -1px;
+    text-transform: lowercase;
+    user-select: none;
+    position: relative;
+    width: 100%;
+    top: 0;
+    margin-bottom: 5px;
+    display: inline-block;
+    font-size: 27px;
+    left: 0;
+    font-weight: bold;
+    font-family: "Roboto Regular";
+    color: #000000;
+}
+
+.panels {
+    width: 100%;
+    padding-top: 70px;
+}
+
+.panels .panel.json {
+    float: left;
+}
+.panels .panel.code  {
+    float: right;
+}
+
+.panel-wrapper {
+    z-index: 2;
+    user-select: none;
+    padding: 3px;
+    font-size: 16px;
+    position: relative;
+    background: #b55555;
+    color: white;
+    border-radius: 5px 5px 0 0;
+}
+
+.data-wrapper {
+    height: 300px;
+}
+.data, .preview {
+    resize: none;
+    outline: none;
+    border: none;
+    display: block;
+    transition: margin-top 0.1s ease;
+    background: transparent;
+    color: white;
+    height: 100%;
+    position: relative;
+    width: 100%;
+    overflow-x: hidden;
+    overflow-y: auto;
+    padding-right: 10px;
+}
