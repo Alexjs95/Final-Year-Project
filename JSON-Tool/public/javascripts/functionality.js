@@ -156,6 +156,15 @@ window.onload = function(){
                             datatypes.push("Array");
                         }
                     }
+
+                    if (i === 0) {
+                        if (jsonSplit[i] === "{") {
+                            datatypes.push("Object");
+                        } else if (jsonSplit[i] === "[") {
+                            datatypes.push("Array");
+                        }
+                        keyValues.push(jsonSplit[i]);
+                    }
                 }
 
                 console.log(keyValues);
@@ -175,23 +184,33 @@ window.onload = function(){
         // code for org.json library
         let code = "InputStream is = new FileInputStream(\"/Users/alexscotson/Downloads/jsonexample.json\");";
         code = code + "\nJSONTokener tokener = new JSONTokener(is);"
+        console.log(keyValues.length);
         for (let i = keyValues.length - 1; i >= 0; i --) {
             // last element of array
             if (i === keyValues.length -1 ) {
-                if (datatypes[i] === "Object") {
+                if (keyValues[i] === "{") {
                     code = code + "\nJSONObject " + keyValues[0] + " = new JSONObject(tokener);\n";
                     code = code + "System.out.println(" + keyValues[0];
-                } else if (datatypes[i] === "Array") {
+                } else if (keyValues[i] === "[") {
                     code = code +"\nJSONArray " + keyValues[0] + " = new JSONArray(tokener);\n";
                     code = code + "System.out.println(" + keyValues[0];
                 }
-            }
-            if (datatypes[i] === "Object") {
-                code = code + ".getJSONObject(\"" + keyValues[i] + "\")";
-            } else if (datatypes[i] === "Array") {
-                code = code + ".getJSONArray(\"" + keyValues[i] + "\")";
-            } else if (datatypes[i] === "Key") {
-                code = code + ".get(\"" + keyValues[i] + "\"));";
+
+                // if (datatypes[i] === "Object") {
+                //     code = code + "\nJSONObject " + keyValues[0] + " = new JSONObject(tokener);\n";
+                //     code = code + "System.out.println(" + keyValues[0];
+                // } else if (datatypes[i] === "Array") {
+                //     code = code +"\nJSONArray " + keyValues[0] + " = new JSONArray(tokener);\n";
+                //     code = code + "System.out.println(" + keyValues[0];
+                // }
+            } else {
+                if (datatypes[i] === "Object") {
+                    code = code + ".getJSONObject(\"" + keyValues[i] + "\")";
+                } else if (datatypes[i] === "Array") {
+                    code = code + ".getJSONArray(\"" + keyValues[i] + "\")";
+                } else if (datatypes[i] === "Key") {
+                    code = code + ".get(\"" + keyValues[i] + "\"));";
+                }
             }
         }
         return code;
