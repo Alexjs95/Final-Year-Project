@@ -161,6 +161,9 @@ window.onload = function(){
                 console.log(keyValues);
                 console.log(datatypes);
 
+                code = orgjson(keyValues, datatypes);
+                document.getElementById('code-contents').value = code;
+                console.log(code);
             } else {
                 console.log("element not found in json");
             }
@@ -168,7 +171,31 @@ window.onload = function(){
         document.getElementById('generate-code').addEventListener('click', onclick);
     }());
 
-
+    function orgjson(keyValues, datatypes) {
+        // code for org.json library
+        let code = "InputStream is = new FileInputStream(\"/Users/alexscotson/Downloads/jsonexample.json\");";
+        code = code + "\nJSONTokener tokener = new JSONTokener(is);"
+        for (let i = keyValues.length - 1; i >= 0; i --) {
+            // last element of array
+            if (i === keyValues.length -1 ) {
+                if (datatypes[i] === "Object") {
+                    code = code + "\nJSONObject " + keyValues[0] + " = new JSONObject(tokener);\n";
+                    code = code + "System.out.println(" + keyValues[0];
+                } else if (datatypes[i] === "Array") {
+                    code = code +"\nJSONArray " + keyValues[0] + " = new JSONArray(tokener);\n";
+                    code = code + "System.out.println(" + keyValues[0];
+                }
+            }
+            if (datatypes[i] === "Object") {
+                code = code + ".getJSONObject(\"" + keyValues[i] + "\")";
+            } else if (datatypes[i] === "Array") {
+                code = code + ".getJSONArray(\"" + keyValues[i] + "\")";
+            } else if (datatypes[i] === "Key") {
+                code = code + ".get(\"" + keyValues[i] + "\"));";
+            }
+        }
+        return code;
+    }
 };
 
 
