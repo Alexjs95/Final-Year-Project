@@ -170,7 +170,7 @@ window.onload = function(){
                 console.log(keyValues);
                 console.log(datatypes);
 
-                code = orgjson(keyValues, datatypes);
+                code = jackson(keyValues, datatypes);
                 document.getElementById('code-contents').value = code;
                 console.log(code);
             } else {
@@ -184,7 +184,7 @@ window.onload = function(){
         // code for org.json library
         let code = "InputStream is = new FileInputStream(\"/Users/alexscotson/Downloads/jsonexample.json\");";
         code = code + "\nJSONTokener tokener = new JSONTokener(is);"
-        console.log(keyValues.length);
+
         for (let i = keyValues.length - 1; i >= 0; i --) {
             // last element of array
             if (i === keyValues.length -1 ) {
@@ -215,6 +215,43 @@ window.onload = function(){
         }
         return code;
     }
+
+
+    function jackson(keyValues, datatypes) {
+        let code = "InputStream is = new FileInputStream(\"/Users/alexscotson/Downloads/jsonexample.json\");";
+        code = code + "\nJSONTokener tokener = new JSONTokener(is);"
+
+        for (let i = keyValues.length - 1; i >= 0; i --) {
+            if (i === keyValues.length - 1 ) {
+                if (keyValues[i] === "{") {
+                    code = code + "\nJSONObject object = new JSONObject(tokener);\n";
+                } else if (keyValues[i] === "[") {
+                    // TODO:: this is unlikley to work.
+                    code = code + "\nJSONArray object = new JSONArray(tokener);\n";
+                }
+
+                code = code + "String jsonString = object.toString();\n";
+                code = code + "JsonNode rootNode = new ObjectMapper().readTree(new StringReader(jsonString));\n";
+            } else {
+                if (datatypes[i] === "Key") {
+                    if (keyValues.length === 2) {
+                        code = code + "JsonNode " + keyValues[i] + " =  rootNode.get(\"" + keyValues[i] + "\");";
+                    } else {
+                        code = code + "JsonNode " + keyValues[i] + " = " + keyValues[i + 1] + ".get(\"" + keyValues[i] + "\");";
+                    }
+
+                } else {
+                    if (i === keyValues.length - 2) {
+                        code = code + "JsonNode " + keyValues[i] + " = rootNode.get(\"" + keyValues[i] + "\");\n"
+                    } else {
+                        code = code + "JsonNode " + keyValues[i] + " = " + keyValues[i + 1] + ".get(\"" + keyValues[i] + "\");\n"
+                    }
+                }
+            }
+        }
+        return code;
+    }
+
 };
 
 
