@@ -183,16 +183,16 @@ window.onload = function(){
     function orgjson(keyValues, datatypes) {
         // code for org.json library
         let code = "InputStream is = new FileInputStream(\"/Users/alexscotson/Downloads/jsonexample.json\");";
-        code = code + "\nJSONTokener tokener = new JSONTokener(is);"
+        code = code + "\nJSONTokener tokener = new JSONTokener(is);\n\n"
 
         for (let i = keyValues.length - 1; i >= 0; i --) {
             // last element of array
             if (i === keyValues.length -1 ) {
                 if (keyValues[i] === "{") {
-                    code = code + "\nJSONObject " + keyValues[0] + " = new JSONObject(tokener);\n";
+                    code = code + "JSONObject " + keyValues[0] + " = new JSONObject(tokener);\n";
                     code = code + "System.out.println(" + keyValues[0];
                 } else if (keyValues[i] === "[") {
-                    code = code +"\nJSONArray " + keyValues[0] + " = new JSONArray(tokener);\n";
+                    code = code +"JSONArray " + keyValues[0] + " = new JSONArray(tokener);\n";
                     code = code + "System.out.println(" + keyValues[0];
                 }
 
@@ -203,6 +203,7 @@ window.onload = function(){
                 //     code = code +"\nJSONArray " + keyValues[0] + " = new JSONArray(tokener);\n";
                 //     code = code + "System.out.println(" + keyValues[0];
                 // }
+
             } else {
                 if (datatypes[i] === "Object") {
                     code = code + ".getJSONObject(\"" + keyValues[i] + "\")";
@@ -220,7 +221,7 @@ window.onload = function(){
     function jackson(keyValues, datatypes) {
 
         let code = "byte[] jsonData = Files.readAllBytes(Paths.get(\"/Users/alexscotson/Downloads/jsonexample.json\"));";
-        code = code + "\nJsonNode rootNode = new ObjectMapper().readTree(jsonData);\n"
+        code = code + "\nJsonNode rootNode = new ObjectMapper().readTree(jsonData);\n\n";
 
         for (let i = keyValues.length - 1; i >= 0; i --) {
             if (i !== keyValues.length - 1 ) {
@@ -247,7 +248,44 @@ window.onload = function(){
     }
 
 
+    function gson(keyValues, datatypes) {
+        let code =  "byte[] jsonData = Files.readAllBytes(Paths.get(\"/Users/alexscotson/Downloads/jsonexample.json\"));\n";
+        code = code + "String jsonStr = new String(jsonData);\n";
 
+        for (let i = keyValues.length - 1; i >= 0; i --) {
+
+
+            if (i === keyValues.length - 1) {
+                if (keyValues[i] === "{") {
+                    code = code + "JsonObject jsonObj = new Gson().fromJson(jsonStr, JsonObject.class);\n\n";
+                } else if (keyValues[i] === "[") {
+                    code = code + "JsonArray jsonObj = new Gson().fromJson(jsonStr, JsonArray.class);\n\n";
+                }
+
+
+
+            } else if (i === keyValues.length - 2) {
+                if (datatypes[i] === "Object") {
+                    code = code + "JsonObject " + keyValues[i] + "Obj = (JsonObject) jsonObj.get(\"" + keyValues[i] + "\");\n";
+                } else if (datatypes[i] === "Array") {
+                    code = code + "JsonArray " + keyValues[i] + "Obj = (JsonArray) jsonObj.get(\"" + keyValues[i] + "\");\n";
+                }
+
+                if (keyValues.length === 2) {
+                    code = code + "String " + keyValues[i] + " = jsonObj.get(\"" + keyValues[i] + "\").toString();\n";
+                }
+            } else {
+                if (datatypes[i] === "Object") {
+                    code = code + "JsonObject " + keyValues[i] + "Obj = (JsonObject) " + keyValues[i + 1] + "Obj.get(\"" + keyValues[i] + "\");\n";
+                } else if (datatypes[i] === "Array") {
+                    code = code + "JsonArray " + keyValues[i] + "Obj = (JsonArray) " + keyValues[i + 1] + "Obj.get(\"" + keyValues[i] + "\");\n";
+                } else if (datatypes[i] === "Key") {
+                    code = code + "String " + keyValues[i] + " = " + keyValues[i + 1] + "Obj.get(\"" + keyValues[i] + "\").toString();\n";
+                }
+            }
+        }
+        return code;
+    }
 };
 
 
