@@ -218,21 +218,12 @@ window.onload = function(){
 
 
     function jackson(keyValues, datatypes) {
-        let code = "InputStream is = new FileInputStream(\"/Users/alexscotson/Downloads/jsonexample.json\");";
-        code = code + "\nJSONTokener tokener = new JSONTokener(is);"
+
+        let code = "byte[] jsonData = Files.readAllBytes(Paths.get(\"/Users/alexscotson/Downloads/jsonexample.json\"));";
+        code = code + "\nJsonNode rootNode = new ObjectMapper().readTree(jsonData);\n"
 
         for (let i = keyValues.length - 1; i >= 0; i --) {
-            if (i === keyValues.length - 1 ) {
-                if (keyValues[i] === "{") {
-                    code = code + "\nJSONObject object = new JSONObject(tokener);\n";
-                } else if (keyValues[i] === "[") {
-                    // TODO:: this is unlikley to work.
-                    code = code + "\nJSONArray object = new JSONArray(tokener);\n";
-                }
-
-                code = code + "String jsonString = object.toString();\n";
-                code = code + "JsonNode rootNode = new ObjectMapper().readTree(new StringReader(jsonString));\n";
-            } else {
+            if (i !== keyValues.length - 1 ) {
                 if (datatypes[i] === "Key") {
                     if (keyValues.length === 2) {
                         code = code + "JsonNode " + keyValues[i] + " =  rootNode.get(\"" + keyValues[i] + "\");";
@@ -246,11 +237,16 @@ window.onload = function(){
                     } else {
                         code = code + "JsonNode " + keyValues[i] + " = " + keyValues[i + 1] + ".get(\"" + keyValues[i] + "\");\n"
                     }
+
                 }
+            } else {
+
             }
         }
         return code;
     }
+
+
 
 };
 
