@@ -35,15 +35,15 @@
     margin-bottom: 5px;
     display: inline-block;
     font-size: 27px;
+    font-family: "Roboto Regular";
     left: 0;
     font-weight: bold;
-    font-family: "Roboto Regular";
     color: #000000;
 }
 
 .panels {
     width: 100%;
-    padding-top: 70px;
+    padding-top: 10px;
 }
 
 .panels .panel.json {
@@ -75,6 +75,23 @@
     transition: margin-top 0.1s ease;
     background: transparent;
     color: white;
+    height: 100%;
+    position: relative;
+    width: 100%;
+    overflow-x: hidden;
+    overflow-y: auto;
+    padding-right: 10px;
+}
+
+.error, .preview {
+    resize: none;
+    outline: none;
+    border: none;
+    display: block;
+    transition: margin-top 0.1s ease;
+    background: transparent;
+    font-size: 16px;
+    color: #b55555;
     height: 100%;
     position: relative;
     width: 100%;

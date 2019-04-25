@@ -47,11 +47,16 @@
                 </select>
             </div><br>
 
-            <input type="button" id="generate-code" value="Generate Code" >
+            <input type="button" id="generate-code" value="Generate Code" ><br><br>
+
+            <div class="error">
+                <textarea readonly class="error" id="errors"></textarea>
+            </div><br>
 
             <div class="tool-container">
-                <div class="section panels tool tool-primary" data-accepts="text" data-returns data-tool-url="generate">
-                    <div class="body">
+                <div class="section panels tool tool-primary" >
+
+                <div class="body">
                         <div class="panels-wrapper">
                             <div class="panel json">
                                 <label>JSON</label>

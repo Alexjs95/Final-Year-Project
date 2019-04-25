@@ -2,6 +2,7 @@ window.onload = function(){
     (function(){
         function onclick(event) {
             let files = document.getElementById('selectFiles').files;
+            document.getElementById('errors').value = "";
             console.log(files);
             if (files.length <= 0) {
                 return false;
@@ -11,15 +12,23 @@ window.onload = function(){
 
             fr.onload = function(e) {
                 console.log(e);
-                let result = JSON.parse(e.target.result);
+                let result;
+                try {
+                    result = JSON.parse(e.target.result);
+                } catch (e) {
+                    document.getElementById('errors').value = "Invalid JSON";
+                    return;
+                }
+
 
                 let formatted = JSON.stringify(result, null, 2);
                 document.getElementById('json-contents').value = formatted;
-            }
+            };
             fr.readAsText(files.item(0));
         }
         document.getElementById('upload').addEventListener('click', onclick);
     }());
+
 
 
     (function(){
@@ -28,6 +37,7 @@ window.onload = function(){
             let e = document.getElementById('language');
             let language = document.getElementById('language').options[e.selectedIndex].text;
             let element = document.getElementById('element').value;
+            document.getElementById('errors').value = "";
 
             let noOfArrays = 0;
             let noOfObjects = 0;
@@ -38,9 +48,13 @@ window.onload = function(){
 
             if (!json) {
                 console.log("json invalid");
+                document.getElementById('errors').value = "Invalid JSON";
+
             } else if (!language) {
+                document.getElementById('errors').value = "Select a language or library.";
                 console.log("language invalid");
             } else if (!element) {
+                document.getElementById('errors').value = "Please enter an element you wish to retrieve.";
                 console.log("no element");
             } else {
 
@@ -52,13 +66,13 @@ window.onload = function(){
                     // Loops through the JSON file.
                     for (i = 0; i < lengthOfJSON; i ++) {
                         // checks the character and if its a curly bracket counts it as an object.
-                        if (json.charAt(i) == '{') {
+                        if (json.charAt(i) === '{') {
                             noOfObjects ++;
                             if (i < elementPosition) {
                                 objectsBeforeElement ++;
                             }
                             // checks for square brackets and counts for array.
-                        } else if (json.charAt(i) == '[') {
+                        } else if (json.charAt(i) === '[') {
                             noOfArrays ++;
                             if (i < elementPosition) {
                                 arraysBeforeElement ++;
@@ -67,7 +81,6 @@ window.onload = function(){
                     }
                     // remove contents of json after the found element.
                     json = json.substring(0, elementPosition);
-
 
                     // determine whether the element is a key or a value.
                     let elementType = "";
@@ -108,7 +121,7 @@ window.onload = function(){
                         // last element in array.
                         if (i === jsonSplit.length - 1) {
                             // if element is a value then get item before from array.
-                            if (elementType == "Value") {
+                            if (elementType === "Value") {
                                 // Check length of element to get relevant key.
                                 keyValues.push(jsonSplit[i - element.split(' ').length]);
                                 datatypes.push("Key");
@@ -117,7 +130,6 @@ window.onload = function(){
                                 datatypes.push("Key");
                             }
                         }
-
 
                         let valueRequired = true;
 
@@ -136,7 +148,7 @@ window.onload = function(){
                             }
 
                             // Adds only required object values to array.
-                            if (i != 0 && valueRequired == true) {
+                            if (i !== 0 && valueRequired === true) {
                                 keyValues.push(jsonSplit[i - 1]);
                                 datatypes.push("Object");
                             }
@@ -156,7 +168,7 @@ window.onload = function(){
                             }
 
                             // Adds only required array values to array.
-                            if (i != 0 && valueRequired == true) {
+                            if (i !== 0 && valueRequired === true) {
                                 keyValues.push(jsonSplit[i - 1]);
                                 datatypes.push("Array");
                             }
@@ -176,7 +188,7 @@ window.onload = function(){
                     console.log(datatypes);
 
                     let code;
-                    if (language === "org.json") {
+                    if (language === "JSON-Java") {
                         code = orgjson(keyValues, datatypes);
                     } else if (language === "Jackson") {
                         code = jackson(keyValues, datatypes);
@@ -188,10 +200,10 @@ window.onload = function(){
                     document.getElementById('code-contents').value = code;
                     console.log(code);
                 } else {
+                    document.getElementById('errors').value = "The desired element cannot be found in the JSON.";
                     console.log("element not found in json");
                 }
             }
-
 
             // TODO: validation on JSON, Language and Element
 
@@ -200,9 +212,8 @@ window.onload = function(){
     }());
 
     function orgjson(keyValues, datatypes) {
-        // code for org.json library
         let code = "InputStream is = new FileInputStream(\"/Users/alexscotson/Downloads/jsonexample.json\");";
-        code = code + "\nJSONTokener tokener = new JSONTokener(is);\n\n"
+        code = code + "\nJSONTokener tokener = new JSONTokener(is);\n\n";
 
         for (let i = keyValues.length - 1; i >= 0; i --) {
             // last element of array
@@ -238,12 +249,11 @@ window.onload = function(){
 
 
     function jackson(keyValues, datatypes) {
-
         let code = "byte[] jsonData = Files.readAllBytes(Paths.get(\"/Users/alexscotson/Downloads/jsonexample.json\"));";
         code = code + "\nJsonNode rootNode = new ObjectMapper().readTree(jsonData);\n\n";
 
         for (let i = keyValues.length - 1; i >= 0; i --) {
-            if (i !== keyValues.length - 1 ) {
+            if (i !== keyValues.length - 1) {
                 if (datatypes[i] === "Key") {
                     if (keyValues.length === 2) {
                         code = code + "JsonNode " + keyValues[i] + " =  rootNode.get(\"" + keyValues[i] + "\");";
@@ -272,16 +282,12 @@ window.onload = function(){
         code = code + "String jsonStr = new String(jsonData);\n";
 
         for (let i = keyValues.length - 1; i >= 0; i --) {
-
-
             if (i === keyValues.length - 1) {
                 if (keyValues[i] === "{") {
                     code = code + "JsonObject jsonObj = new Gson().fromJson(jsonStr, JsonObject.class);\n\n";
                 } else if (keyValues[i] === "[") {
                     code = code + "JsonArray jsonObj = new Gson().fromJson(jsonStr, JsonArray.class);\n\n";
                 }
-
-
 
             } else if (i === keyValues.length - 2) {
                 if (datatypes[i] === "Object") {
@@ -306,6 +312,3 @@ window.onload = function(){
         return code;
     }
 };
-
-
-
