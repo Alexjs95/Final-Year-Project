@@ -35,6 +35,14 @@ window.onload = function(){
             let url =  document.getElementById('url').value
             let json_obj = Get(url);
 
+            if (!json_obj) {
+                document.getElementById('errors').value = "JSON cannot be retrieved.";
+                return;
+            } else {
+                document.getElementById('errors').value = json_obj;
+                return;
+            }
+
             try {
                 JSON.parse(json_obj);
             } catch (e) {
@@ -50,10 +58,15 @@ window.onload = function(){
 
 
     function Get(yourUrl){
-        var Httpreq = new XMLHttpRequest(); // a new request
-        Httpreq.open("GET",yourUrl,false);
-        Httpreq.send(null);
-        return Httpreq.responseText;
+        try {
+            let Httpreq = new XMLHttpRequest(); // a new request
+            Httpreq.open("GET",yourUrl,false);
+            Httpreq.send(null);
+            return Httpreq.responseText;
+        } catch (err) {
+            return err;
+        }
+
     }
 
 
