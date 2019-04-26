@@ -30,6 +30,32 @@ window.onload = function(){
         document.getElementById('upload').addEventListener('click', onclick);
     }());
 
+    (function() {
+        function onclick(event) {
+            let url =  document.getElementById('url').value
+            let json_obj = Get(url);
+
+            try {
+                JSON.parse(json_obj);
+            } catch (e) {
+                document.getElementById('errors').value = "Invalid JSON";
+                return;
+            }
+
+            let formatted = JSON.stringify(json_obj, null, 2);
+            document.getElementById('json-contents').value = formatted;
+        }
+        document.getElementById('load-url').addEventListener('click', onclick);
+    }());
+
+
+    function Get(yourUrl){
+        var Httpreq = new XMLHttpRequest(); // a new request
+        Httpreq.open("GET",yourUrl,false);
+        Httpreq.send(null);
+        return Httpreq.responseText;
+    }
+
 
 
     (function(){
