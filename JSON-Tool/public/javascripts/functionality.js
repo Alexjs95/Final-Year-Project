@@ -343,8 +343,15 @@ window.onload = function(){
                     if (numOfKeys === 1) {
                         code = code + ".get(\"" + keyValues[i] + "\"));";
                     } else {
-                        code = code + ".get(" + keyValues[i] + "));";
-                        break;
+                        if (dataTypes[i] === dataTypes.length - 1) {
+                            code = code + ".get(" + keyValues[i] + "));";
+                            break;
+                        } else {
+                            if (i === 0) {
+                                code = code + ".get(\"" + keyValues[i] + "\"));";
+                            }
+                        }
+
                     }
                 }
             }
