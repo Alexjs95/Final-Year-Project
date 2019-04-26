@@ -1,6 +1,7 @@
 window.onload = function(){
     (function(){
         function onclick(event) {
+            document.getElementById('code-contents').value = "";
             let files = document.getElementById('selectFiles').files;
             document.getElementById('errors').value = "";
             console.log(files);
@@ -33,6 +34,7 @@ window.onload = function(){
 
     (function(){
         function onclick(event) {
+            document.getElementById('code-contents').value = "";
             let json = document.getElementById('json-contents').value;
             let e = document.getElementById('language');
             let language = document.getElementById('language').options[e.selectedIndex].text;
@@ -63,6 +65,13 @@ window.onload = function(){
                 document.getElementById('errors').value = "Please enter an element you wish to retrieve.";
                 console.log("no element");
             } else {
+
+                try {
+                    JSON.parse(json);
+                } catch (e) {
+                    document.getElementById('errors').value = "Invalid JSON";
+                    return;
+                }
 
                 let elementPosition = json.search(element);
                 if (elementPosition > 0) {
@@ -141,10 +150,13 @@ window.onload = function(){
 
                         // checks for beginning of object.
                         if (jsonSplit[i] === "{") {
+                            let count = 0;
                             // check everything after beginning of object.
                             for (let j = i + 1; j < jsonSplit.length - 1; j++) {
                                 // if another object is initialed then break
                                 if (jsonSplit[j] === "{") {
+                                    count = count + 1;
+
                                     break;
                                     // if the object is closed then the current value of jsonSplit is not required.
                                 } else if (jsonSplit[j] === "}") {
@@ -152,17 +164,35 @@ window.onload = function(){
                                     break;
                                 }
                             }
+                            console.log("count in Object " + count);
+
+                            if (count === 0) {
+                                //count = jsonSplit.length - i - 2;
+                            } else {
+                                count = count - 1;
+                            }
+
+
 
                             // Adds only required object values to array.
                             if (i !== 0 && valueRequired === true) {
-                                keyValues.push(jsonSplit[i - 1]);
-                                dataTypes.push("Object");
+                                if ((jsonSplit[i - 1] !== "[") && (jsonSplit[i - 1] !== "]") && (jsonSplit[i - 1] !== "{") && (jsonSplit[i - 1] !== "}")) {
+
+                                        keyValues.push(jsonSplit[i - 1]);
+                                        dataTypes.push("Object");
+
+                                }
                             }
 
                             // checks for beginning of Array.
                         } else if (jsonSplit[i] === "[") {
+
+
+                            let count = 0 ;
+
                             // check everything after beginning of array.
                             for (let j = i + 1; j < jsonSplit.length - 1; j++) {
+
                                 // if another array is initialed then break
                                 if (jsonSplit[j] === "[") {
                                     break;
@@ -170,13 +200,35 @@ window.onload = function(){
                                 } else if (jsonSplit[j] === "]") {
                                     valueRequired = false;
                                     break;
+                                } else if (jsonSplit[j] === "{") {
+                                    count = count + 1;
                                 }
                             }
 
+                            if (count === 0) {
+                                count = jsonSplit.length - i - 2;
+                            } else {
+                                count --;
+                            }
+                            console.log("count in array " + count);
+
                             // Adds only required array values to array.
                             if (i !== 0 && valueRequired === true) {
-                                keyValues.push(jsonSplit[i - 1]);
-                                dataTypes.push("Array");
+
+                                if ((jsonSplit[i - 1] !== "[") && (jsonSplit[i - 1] !== "]")) {
+                                    keyValues.push(count);
+                                    dataTypes.push("Object Count");
+
+                                    keyValues.push(jsonSplit[i - 1]);
+                                    dataTypes.push("Array");
+
+
+                                }
+
+
+                            } else {
+                                keyValues.push(count);
+                                dataTypes.push("Key");
                             }
                         }
 
@@ -220,7 +272,7 @@ window.onload = function(){
     function orgjson(keyValues, dataTypes, jsonLoc) {
         let code;
         if (jsonLoc === "File") {
-            code = "InputStream is = new FileInputStream(\"/Users/alexscotson/Downloads/jsonexample.json\");";
+            code = "InputStream is = new FileInputStream(\"Enter DIR here\");";
             code = code + "\nJSONTokener tokener = new JSONTokener(is);\n\n"
 
             if (keyValues[keyValues.length - 1] === "{") {
@@ -251,11 +303,16 @@ window.onload = function(){
             }
         }
 
+        let numOfKeys = 0;
+        for(let i = 0; i < dataTypes.length; i++){
+            if(dataTypes[i] === "Key")
+                numOfKeys++;
+        }
 
 
         for (let i = keyValues.length - 1; i >= 0; i --) {
             // last element of array
-            if (i === keyValues.length -1 ) {
+            if (i === keyValues.length - 1) {
                 // if (keyValues[i] === "{") {
                 //     code = code + "JSONObject " + keyValues[0] + " = new JSONObject(tokener);\n";
                 //     code = code + "System.out.println(" + keyValues[0];
@@ -277,8 +334,18 @@ window.onload = function(){
                     code = code + ".getJSONObject(\"" + keyValues[i] + "\")";
                 } else if (dataTypes[i] === "Array") {
                     code = code + ".getJSONArray(\"" + keyValues[i] + "\")";
-                } else if (dataTypes[i] === "Key") {
-                    code = code + ".get(\"" + keyValues[i] + "\"));";
+
+                } else if (dataTypes[i] === "Object Count") {
+                    code = code + ".getJSONObject(" + keyValues[i] + ")";
+
+                }
+                else if (dataTypes[i] === "Key") {
+                    if (numOfKeys === 1) {
+                        code = code + ".get(\"" + keyValues[i] + "\"));";
+                    } else {
+                        code = code + ".get(" + keyValues[i] + "));";
+                        break;
+                    }
                 }
             }
         }
@@ -289,7 +356,7 @@ window.onload = function(){
     function jackson(keyValues, dataTypes, jsonLoc) {
         let code;
         if (jsonLoc === "File") {
-            code = "byte[] jsonData = Files.readAllBytes(Paths.get(\"/Users/alexscotson/Downloads/jsonexample.json\"));";
+            code = "byte[] jsonData = Files.readAllBytes(Paths.get(\"Enter DIR here\"));";
             code = code + "\nJsonNode rootNode = new ObjectMapper().readTree(jsonData);\n\n";
         } else {
             // api code
@@ -297,20 +364,51 @@ window.onload = function(){
             code = code + "JsonNode rootNode = new ObjectMapper().readTree(url);\n\n"
         }
 
+        let numOfKeys = 0;
+        for(let i = 0; i < dataTypes.length; i++){
+            if(dataTypes[i] === "Key")
+                numOfKeys++;
+        }
+
         for (let i = keyValues.length - 1; i >= 0; i --) {
             if (i !== keyValues.length - 1) {
                 if (dataTypes[i] === "Key") {
-                    if (keyValues.length === 2) {
-                        code = code + "JsonNode " + keyValues[i] + " =  rootNode.get(\"" + keyValues[i] + "\");";
+                    if (keyValues.length === 2 || keyValues.length === 3) {
+                        if (numOfKeys === 1) {
+                            code = code + "JsonNode " + keyValues[i] + " =  rootNode.get(\"" + keyValues[i] + "\");";
+
+                        } else {
+                            code = code + "JsonNode obj" + keyValues[i] + " =  rootNode.get(" + keyValues[i] + ");";
+                            code = code + "\nSystem.out.println(obj" + keyValues[i] + ");\n"
+
+                            return code;
+                        }
                     } else {
-                        code = code + "JsonNode " + keyValues[i] + " = " + keyValues[i + 1] + ".get(\"" + keyValues[i] + "\");";
+                        if (dataTypes[i + 1] === "Object Count") {
+                            code = code + "JsonNode " + keyValues[i] + " = obj" + keyValues[i + 1] + ".get(\"" + keyValues[i] + "\");\n"
+
+                        } else {
+                            code = code + "JsonNode " + keyValues[i] + " = " + keyValues[i + 1] + ".get(\"" + keyValues[i] + "\");\n"
+
+                        }
                     }
 
                 } else {
                     if (i === keyValues.length - 2) {
                         code = code + "JsonNode " + keyValues[i] + " = rootNode.get(\"" + keyValues[i] + "\");\n"
                     } else {
-                        code = code + "JsonNode " + keyValues[i] + " = " + keyValues[i + 1] + ".get(\"" + keyValues[i] + "\");\n"
+                        if (dataTypes[i] === "Object Count") {
+                            code = code + "JsonNode obj" + keyValues[i] + " = " + keyValues[i + 1] + ".get(" + keyValues[i] + ");\n"
+                        } else {
+                            if (dataTypes[i + 1] === "Object Count") {
+                                code = code + "JsonNode " + keyValues[i] + " = obj" + keyValues[i + 1] + ".get(\"" + keyValues[i] + "\");\n"
+
+                            } else {
+                                code = code + "JsonNode " + keyValues[i] + " = " + keyValues[i + 1] + ".get(\"" + keyValues[i] + "\");\n"
+
+                            }
+                        }
+
 
                     }
 
@@ -330,7 +428,7 @@ window.onload = function(){
         console.log("jsonloc "  +jsonLoc);
         if (jsonLoc === "File") {
             // From file
-            code =  "byte[] jsonData = Files.readAllBytes(Paths.get(\"/Users/alexscotson/Downloads/jsonexample.json\"));\n";
+            code =  "byte[] jsonData = Files.readAllBytes(Paths.get(\"Enter DIR here\"));\n";
             code = code + "String jsonStr = new String(jsonData);\n";
 
             if (keyValues[keyValues.length - 1] === "{") {
@@ -353,6 +451,12 @@ window.onload = function(){
             }
         }
 
+        let numOfKeys = 0;
+        for(let i = 0; i < dataTypes.length; i++){
+            if(dataTypes[i] === "Key")
+                numOfKeys++;
+        }
+
         for (let i = keyValues.length - 1; i >= 0; i --) {
             if (i === keyValues.length - 1) {
                 // if (keyValues[i] === "{") {
@@ -366,22 +470,50 @@ window.onload = function(){
                     code = code + "JsonObject " + keyValues[i] + "Obj = (JsonObject) jsonObj.get(\"" + keyValues[i] + "\");\n";
                 } else if (dataTypes[i] === "Array") {
                     code = code + "JsonArray " + keyValues[i] + "Obj = (JsonArray) jsonObj.get(\"" + keyValues[i] + "\");\n";
+                } else if (dataTypes[i] === "Object Count") {
+                    code = code + "JsonObject Obj" + keyValues[i] + " = (JsonObject) jsonObj.get(" + keyValues[i] + ");\n";
+
                 }
 
-                if (keyValues.length === 2) {
-                    code = code + "String " + keyValues[i] + " = jsonObj.get(\"" + keyValues[i] + "\").toString();\n";
+                if (keyValues.length === 2 ||keyValues.length === 3) {
+                    if (numOfKeys === 1) {
+                        code = code + "String " + keyValues[i] + " = jsonObj.get(\"" + keyValues[i] + "\").toString();\n";
+                    } else {
+                        code = code + "String obj" + keyValues[i] + " = jsonObj.get(" + keyValues[i] + ").toString();\n";
+                        code = code + "\nSystem.out.println(obj" + keyValues[i] + ");\n";
+                        return code;
+                    }
+
+
                 }
             } else {
                 if (dataTypes[i] === "Object") {
-                    code = code + "JsonObject " + keyValues[i] + "Obj = (JsonObject) " + keyValues[i + 1] + "Obj.get(\"" + keyValues[i] + "\");\n";
+                    if (dataTypes[i + 1] === "Object Count") {
+                        code = code + "JsonObject obj" + keyValues[i] + " = (JsonObject) " + keyValues[i + 1] + "Obj.get(\"" + keyValues[i] + "\");\n";
+                    } else {
+                        code = code + "JsonObject " + keyValues[i] + "Obj = (JsonObject) " + keyValues[i + 1] + "Obj.get(\"" + keyValues[i] + "\");\n";
+                    }
+
                 } else if (dataTypes[i] === "Array") {
                     code = code + "JsonArray " + keyValues[i] + "Obj = (JsonArray) " + keyValues[i + 1] + "Obj.get(\"" + keyValues[i] + "\");\n";
                 } else if (dataTypes[i] === "Key") {
-                    code = code + "String " + keyValues[i] + " = " + keyValues[i + 1] + "Obj.get(\"" + keyValues[i] + "\").toString();\n";
+                    if (dataTypes[i + 1] === "Object Count") {
+                        code = code + "String " + keyValues[i] + " = obj" + keyValues[i + 1] + ".get(\"" + keyValues[i] + "\").toString();\n";
+
+                    } else {
+                        if (numOfKeys === 1) {
+                            code = code + "String " + keyValues[i] + " = " + keyValues[i + 1] + "Obj.get(\"" + keyValues[i] + "\").toString();\n";
+                        } else {
+                            code = code + "String obj" + keyValues[i] + " = " + keyValues[i + 1] + "Obj.get(\"" + keyValues[i] + "\").toString();\n";
+                        }
+                    }
+
+                } else if (dataTypes[i] === "Object Count") {
+                    code = code + "JsonObject obj" + keyValues[i] + " = (JsonObject) " + keyValues[i + 1] + "Obj.get(" + keyValues[i] + ");\n";
                 }
             }
         }
-        code = code + "\nSystem.out.println(" + keyValues[0] + ");\n"
+        code = code + "\nSystem.out.println(" + keyValues[0] + ");\n";
 
         return code;
     }
