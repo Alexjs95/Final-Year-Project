@@ -26,10 +26,6 @@
 
 
 .panel > label {
-    letter-spacing: -1px;
-    text-transform: lowercase;
-    user-select: none;
-    position: relative;
     width: 100%;
     top: 0;
     margin-bottom: 5px;
