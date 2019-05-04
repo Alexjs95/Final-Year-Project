@@ -48,8 +48,8 @@ window.onload = function(){
                 return;
             }
 
-            // convert JSON object to string and set display it html.
-            document.getElementById('json-contents').value = JSON.stringify(json_obj, null, 2);
+            // convert set display it html.
+            document.getElementById('json-contents').value = json_obj;
         }
         document.getElementById('load-url').addEventListener('click', onclick);
     }());
